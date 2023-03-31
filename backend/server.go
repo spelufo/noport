@@ -1,30 +1,21 @@
 package noport
 
 import (
-	"encoding/json"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 )
 
-const configPath = "config.json"
-
-func RunServer() {
+func runServer() {
 	r := gin.Default()
 	r.Use(middleware)
-	r.GET("/config.json", handleConfigGet)
-	r.POST("/config.json", handleConfigPost)
+	r.GET("/"+theConfigFileName, handleConfigGet)
+	r.POST("/"+theConfigFileName, handleConfigPost)
 	r.Run()
 }
 
 func handleConfigGet(c *gin.Context) {
-	b, err := os.ReadFile(configPath)
-	if err != nil {
-		c.Status(http.StatusNotFound)
-		return
-	}
-	c.Data(http.StatusOK, "application/json", b)
+	c.JSON(http.StatusOK, theConfig)
 }
 
 func handleConfigPost(c *gin.Context) {
@@ -34,13 +25,7 @@ func handleConfigPost(c *gin.Context) {
 		return
 	}
 
-	file, err := json.MarshalIndent(config, "", "  ")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = os.WriteFile(configPath, file, 0644)
+	err := saveConfig(config)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -57,5 +42,3 @@ func middleware(c *gin.Context) {
 		return
 	}
 }
-
-

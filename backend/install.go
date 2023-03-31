@@ -1,5 +1,5 @@
 package noport
 
-func RunCli() {
+func install() {
 
 }

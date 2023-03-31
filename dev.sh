@@ -2,28 +2,24 @@
 
 set -e
 
+build() {
+  (cd backend; go build -o ~/bin/noport ./cmd/noport)
+  # figwheel -bo dev
+}
+
+fmt() {
+  (cd backend; go fmt ./...)
+}
+
 figwheel() {
   clojure -M -m figwheel.main "$@"
 }
 
-build() {(
-  figwheel -bo dev
-)}
-
-build_release() {
-  echo "Not implemented yet."
-  exit 1
-}
-
-run() {
+front() {
   figwheel -b dev -r
 }
 
-backend() {(
-  cd backend; go run ./cmd/server
-)}
-
-show_build_config() {
+figwheel_config() {
   figwheel -pc -bo dev
 }
 
