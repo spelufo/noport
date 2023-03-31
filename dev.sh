@@ -15,6 +15,10 @@ figwheel() {
   clojure -M -m figwheel.main "$@"
 }
 
+server() {
+  build && noport
+}
+
 front() {
   figwheel -b dev -r
 }

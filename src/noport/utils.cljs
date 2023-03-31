@@ -25,12 +25,14 @@
     (.then
       (fn [response]
         (assert (.-ok response) "doc not found")
-        (.json response)))))
+        (.json response)))
+    (.then
+      #(js->clj % :keywordize-keys true))))
 
-(defn post! [url json-data]
+(defn post! [url data]
   (js/fetch url
     (clj->js {
       :method "POST"
       :headers {"Content-Type" "application/json"
                 "Accept" "application/json"}
-      :body (js/JSON.stringify json-data nil 2) })))
+      :body (js/JSON.stringify (clj->js data) nil 2) })))

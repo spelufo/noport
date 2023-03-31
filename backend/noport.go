@@ -1,25 +1,36 @@
 package noport
 
 import (
+	"bytes"
 	"encoding/json"
-	"errors"
+	"os/exec"
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"text/template"
 )
 
-// The filename of the config file (~/.noport.json).
-const theConfigFileName = ".noport.json"
-
-// The path to the config file.
-var theConfigFilePath string
-
-// The current config.
-var theConfig Config
-
-// The nginx.conf template.
-var nginxConfTemplate *template.Template
+func Main() {
+	if len(os.Args) <= 1 {
+		loadUserConfig()
+		runServer()
+	} else {
+		switch os.Args[1] {
+		case "server", "serve":
+			loadUserConfig()
+			runServer()
+		case "conf":
+			loadUserConfig()
+			writeNginxConfTo(os.Stdout)
+		case "install":
+			install()
+		default:
+			fmt.Fprintf(os.Stderr, "unrecognized command")
+			os.Exit(1)
+		}
+	}
+}
 
 type Config struct {
 	Servers []Server `json:"servers" binding:"required"`
@@ -31,8 +42,22 @@ type Server struct {
 	SSL    bool   `json:"ssl"`
 }
 
+const (
+	// The filename of the config file (~/.noport.json).
+	theConfigFileName = ".noport.json"
+	theNginxConfPath = "/etc/nginx/nginx.conf"
+)
+
+var (
+	// The current config.
+	theConfig Config
+
+	// The nginx.conf template.
+	theTemplate *template.Template
+)
+
 func init() {
-	nginxConfTemplate = template.Must(template.New("nginx.conf").Parse(`
+	theTemplate = template.Must(template.New("nginx.conf").Parse(`
 user http;
 worker_processes  1;
 
@@ -42,33 +67,22 @@ events {
 
 http {
     charset utf-8;
-
-    include       mime.types;
-    default_type  application/octet-stream;
-
-    sendfile        on;
-    #tcp_nopush     on;
-
-    #keepalive_timeout  0;
-    keepalive_timeout  65;
-
-    #gzip  on;
-
-		{{define "server"}}
+    include mime.types;
+    default_type application/octet-stream;
+    sendfile on;
+    keepalive_timeout 65;
+{{define "server"}}
     server {
         listen {{if .SSL}}443{{else}}80{{end}};
         server_name {{.Domain}}.localhost;
 
-        {{if .SSL -}}
+        {{- if .SSL}}
         ssl_certificate      cert.pem;
         ssl_certificate_key  cert.key;
-
         ssl_session_cache    shared:SSL:1m;
         ssl_session_timeout  5m;
-
         ssl_ciphers  HIGH:!aNULL:!MD5;
-        ssl_prefer_server_ciphers  on;
-        {{- end}}
+        ssl_prefer_server_ciphers  on;{{end}}
 
         location / {
             proxy_set_header   X-Forwarded-For $remote_addr;
@@ -76,64 +90,78 @@ http {
             proxy_pass         "http{{if .SSL}}s{{end}}://127.0.0.1:{{.Port}}";
         }
     }
-		{{end}}
-
-    {{range .Servers}}
-    {{template "server" .}}
-    {{end}}
+{{end}}
+{{range .Servers -}}{{template "server" .}}{{end}}
 }
 `))
 }
 
-func Main() {
-	loadConfig()
-	if len(os.Args) <= 1 {
-		runServer()
-	} else {
-		switch os.Args[1] {
-		case "server", "serve":
-			runServer()
-		case "conf":
-			nginxConfTemplate.Execute(os.Stdout, theConfig)
-		case "install":
-			install()
-		default:
-			fmt.Fprintf(os.Stderr, "unrecognized command")
-			os.Exit(1)
-		}
+func install() {
+	confPath := theNginxConfPath
+	if len(os.Args) > 2 {
+		confPath = os.Args[2]
 	}
+	installNginxConf(confPath)
 }
 
-func saveConfig(config Config) error {
-	file, err := json.MarshalIndent(config, "", "  ")
+func installNginxConf(confPath string) error {
+	err := writeNginxConf(confPath)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(theConfigFilePath, file, 0644)
+	if confPath != "/etc/nginx/nginx.conf" {
+		fmt.Printf("Run these commands to apply the changes:\n")
+		fmt.Printf("  sudo mv %s /etc/nginx/nginx.conf\n", confPath)
+		fmt.Printf("  sudo systemctl restart nginx\n")
+	} else {
+		cmd := exec.Command("systemctl", "restart", "nginx")
+		return cmd.Run()
+	}
+	return nil
 }
 
-func loadConfig() {
+func writeNginxConf(confPath string) error {
+	b := bytes.Buffer{}
+	err := writeNginxConfTo(&b)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(confPath, b.Bytes(), 0644)
+}
+
+func writeNginxConfTo(w io.Writer) error {
+	return theTemplate.Execute(w, theConfig)
+}
+
+func loadUserConfig() error {
 	home, err := os.UserHomeDir()
-	die(err)
-
-	theConfigFilePath = path.Join(home, theConfigFileName)
-	configBytes, err := os.ReadFile(theConfigFilePath)
-	if errors.Is(err, os.ErrNotExist) {
-		err = saveConfig(Config{})
-		if err == nil {
-			fmt.Println("Created ~/" + theConfigFileName)
-		}
-	}
 	if err != nil {
-		die(err)
+		return err
 	}
-	config := Config{}
-	json.Unmarshal(configBytes, &config)
+	return loadConfig(path.Join(home, theConfigFileName))
 }
 
-func die(err error) {
+func saveUserConfig() error {
+	home, err := os.UserHomeDir()
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "%s", err)
-		os.Exit(1)
+		return err
 	}
+	return saveConfig(path.Join(home, theConfigFileName))
 }
+
+func loadConfig(configPath string) error {
+	configBytes, err := os.ReadFile(configPath)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(configBytes, &theConfig)
+}
+
+func saveConfig(configPath string) error {
+	file, err := json.MarshalIndent(theConfig, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(configPath, file, 0644)
+}
+

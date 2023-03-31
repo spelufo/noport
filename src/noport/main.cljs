@@ -1,18 +1,51 @@
 (ns noport.main
   (:require
-    [noport.utils :refer [p! pjs!]]
+    [noport.utils :refer [remove-at p! pjs! get! post!]]
     [reagent.core :as r]
     [reagent.dom :as rd]))
 
+(defonce *state
+  (r/atom {:servers [{:domain "noport"  :port 8012} ] }))
 
-;;; UI
+(defn next-port []
+  (inc (:port (last (:servers @*state)))))
 
-(defonce *state (r/atom {
-  :servers [
-    {:domain "noport.dev" :port 9500}
-    {:domain "spelufo.com" :port 1313}
-  ]
-  }))
+(defn assoc-server [state domain port ssl?]
+  (update state :servers conj {:domain domain :port port :ssl? ssl?}))
+(defn assoc-server! [domain port ssl?]
+  (swap! *state assoc-server domain port ssl?))
+
+(defn update-server [state i f & args]
+  (apply update-in state [:servers i] f args))
+(defn update-server! [i f & args]
+  (apply swap! *state update-server i f args))
+
+(defn remove-server [state i]
+  (update state :servers remove-at i))
+(defn remove-server! [i]
+  (swap! *state remove-server i))
+
+(defn server-by-domain [state domain]
+  (filter #(= (:domain %) domain) (:servers state)))
+
+(defn server-by-port [state port]
+  (filter #(= (:port %) port) (:servers state)))
+
+(defn load! []
+  (.then
+    (get! (str js/API_URL "/.noport.json"))
+    #(reset! *state %)))
+
+(defn save! []
+  (post! (str js/API_URL "/.noport.json") @*state))
+
+(defn install! []
+  (.then
+    (save!)
+    (post! (str js/API_URL "/install") {})))
+
+
+;; UI ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn ui-server [i server]
   [:div.server {:key i}
@@ -23,8 +56,10 @@
           (fn [ev]
             (let [domain (.. ev -target -value)]
               (swap! *state assoc-in [:servers i :domain] domain)))}]
-      ".localhost"]
+      " .localhost"]
+    [:div "→"]
     [:div.server-port
+      "localhost: "
       [:input {
         :value (:port server)
         :on-change
@@ -33,7 +68,9 @@
               (when (= port-str "")
                 (swap! *state assoc-in [:servers i :port] 0))
               (when-not (NaN? port)
-                (swap! *state assoc-in [:servers i :port] port))))}]]])
+                (swap! *state assoc-in [:servers i :port] port))))}]]
+    [:div.server-buttons
+      [:button.remove-server {:on-click #(remove-server! i)} "×"]]])
 
 (defn ui-servers [servers]
   (into [:div.servers]
@@ -44,7 +81,10 @@
     [:div.main
       [:h1 "Servers"]
       [ui-servers (:servers state)]
-      [:button {} "Save"]
+      [:div.buttons
+        [:button {:on-click #(assoc-server! "" (next-port) true)} "New"]
+        [:button {:on-click #(save!)} "Save"]
+        [:button {:on-click #(install!)} "Install"]]
       [:pre.nginx-config ]]))
 
 (defn mount-app! []
@@ -53,4 +93,4 @@
 (mount-app!)
 
 (defonce _
-  nil)
+  (load!))

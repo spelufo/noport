@@ -1,6 +1,10 @@
 
 :root {
   --bg: white;
+  --font-size: 24px;
+  --serif-family: Palatino, serif;
+  --sans-family: "Noto sans", sans;
+
 }
 
 html, body {
@@ -8,10 +12,22 @@ html, body {
   box-sizing: border-box;
   background: var(--bg);
   height: 100%;
+  font-size: var(--font-size);
+  font-family: var(--sans-family);
+}
+
+input, button {
+  font-size: var(--font-size);
+  font-family: var(--sans-family);
 }
 
 *, *:before, *:after {
   box-sizing: inherit;
+}
+
+#app {
+  display: flex;
+  justify-content: center;
 }
 
 .main {
@@ -19,22 +35,66 @@ html, body {
 }
 
 .servers {
-  max-width: 550px;
+/*  background: gold;*/
 }
 
 .server {
-  border: 1px solid #333;
-  margin-bottom: 0.3em;
-  padding: 0.3em;
+  margin-bottom: 0.8em;
   display: flex;
-  justify-content: space-between;
+  justify-content: left;
 }
 
-.server-domain {
-
+.server > div {
+  margin-right: 0.5em;
 }
 
-.server-port {
-
+.server-domain input {
+  width: 12em;
+/*  text-align: right;*/
+/*  border: 0;*/
+}
+.server-port input {
+/*  border: 0;*/
+  width: 5em;
 }
 
+
+button {
+  color: #333;
+  font-weight: bold;
+  border-radius: 0.3em;
+}
+button:hover {
+  cursor: pointer;
+}
+
+button.remove-server:hover {
+  color: white;
+  border: 1px solid white;
+  background: #f44;
+}
+button.remove-server {
+  color: #f44;
+  border: 1px solid #f44;
+  background: none;
+  height: 100%;
+  padding: 0 0.4em;
+  /*width: 1.4em;
+  height: 1.4em;*/
+}
+
+.buttons {
+  display: flex;
+  padding-top: 0.5em;
+}
+.buttons button {
+  border: 1px solid #666;
+  background: none;
+  padding: 0.3em 0.5em;
+  margin-right: 0.5em;
+}
+.buttons button:hover {
+  background: gold;
+  /*color: white;
+  border: 1px solid white;*/
+}
