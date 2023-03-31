@@ -1,0 +1,4 @@
+{ :ring-handler noport.server/handler
+  :css-dirs ["resources/public/styles"]
+  :open-url false
+}

@@ -1,0 +1,20 @@
+{ :paths ["src" "target" "resources"]
+  :deps {
+    ; common
+    org.clojure/clojurescript {:mvn/version "1.11.60"}
+
+    ; build
+    com.bhauman/figwheel-main {:mvn/version "0.2.18"}
+    com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
+    org.slf4j/slf4j-nop {:mvn/version "2.0.7"} ; silence SLF4J warnings
+
+    ; server
+    ring/ring-core {:mvn/version "1.9.5"}
+    compojure/compojure {:mvn/version "1.7.0"}
+
+    ; frontend
+    cljsjs/react {:mvn/version "17.0.2-0"}
+    cljsjs/react-dom {:mvn/version "17.0.2-0"}
+    reagent/reagent {:mvn/version "1.2.0"}
+  }
+}

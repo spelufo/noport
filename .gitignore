@@ -1,0 +1,7 @@
+.*_history
+/target
+.cpcache
+/_notes.yaml
+local
+node_modules
+/backend/config.json
