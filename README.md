@@ -7,10 +7,9 @@ traffic to the ports where you run your projects, mapping them by subdomain.
 
 ![Noport UI](resources/public/images/noport_ui.png)
 
-
-## Configuration
-
-Your configuration is saved to `~/.noport.json` by the server.
+The "Save" button saves your configuration to `~/.noport.json`.
+The "Install" button saves and then installs an `/etc/nginx/nginx.conf` file
+generated from your configuration.
 
 
 ## Setup
