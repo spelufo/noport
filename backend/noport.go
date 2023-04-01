@@ -3,10 +3,10 @@ package noport
 import (
 	"bytes"
 	"encoding/json"
-	"os/exec"
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path"
 	"text/template"
 )
@@ -45,7 +45,7 @@ type Server struct {
 const (
 	// The filename of the config file (~/.noport.json).
 	theConfigFileName = ".noport.json"
-	theNginxConfPath = "/etc/nginx/nginx.conf"
+	theNginxConfPath  = "/etc/nginx/nginx.conf"
 )
 
 var (
@@ -164,4 +164,3 @@ func saveConfig(configPath string) error {
 	}
 	return os.WriteFile(configPath, file, 0644)
 }
-

@@ -63,13 +63,15 @@ Open http://localhost:8012 for the web interface.
 
 ## Development
 
-The entrypoint for running development tasks is `./dev.sh`.
+The entrypoint for running development tasks is `./dev.sh`. To work on it, run
+both the backend (`./dev.sh server`) and the figwheel development server
+(`./dev.sh front`), which compiles cljs and hot reloads it and css on file
+changes.
 
 
 ## TODO
 
-* [ ] Run only noport's server, not figwheel's. Get rid of allow CORS.
-* [ ] ./dev.sh build_release
+* [ ] ./dev.sh build_release # to bundle everything into a single binary.
 
 
 ## Features

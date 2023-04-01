@@ -3,17 +3,19 @@ package noport
 import (
 	"net/http"
 
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
 const (
-	theAddr = "localhost:8012"
+	theAddr      = "localhost:8012"
 	theConfigURL = "/.noport.json"
 )
 
 func runServer() {
 	r := gin.Default()
-	r.Use(middleware)
+	r.Use(static.Serve("/", static.LocalFile("./resources/public", false)))
+	r.Use(static.Serve("/cljs-out", static.LocalFile("./target/public/cljs-out", false)))
 	r.GET(theConfigURL, handleConfigGet)
 	r.POST(theConfigURL, handleConfigPost)
 	r.POST("/install", handleInstallPost)
@@ -57,14 +59,4 @@ func handleInstallPost(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusOK)
-}
-
-func middleware(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "*")
-	c.Header("Access-Control-Allow-Headers", "*")
-	if c.Request.Method == "OPTIONS" {
-		c.Status(200)
-		return
-	}
 }

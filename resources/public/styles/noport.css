@@ -1,7 +1,7 @@
 
 :root {
   --bg: white;
-  --font-size: 24px;
+  --font-size: 20;
   --serif-family: Palatino, serif;
   --sans-family: "Noto sans", sans;
 
@@ -35,7 +35,6 @@ input, button {
 }
 
 .servers {
-/*  background: gold;*/
 }
 
 .server {
@@ -50,11 +49,8 @@ input, button {
 
 .server-domain input {
   width: 12em;
-/*  text-align: right;*/
-/*  border: 0;*/
 }
 .server-port input {
-/*  border: 0;*/
   width: 5em;
 }
 
@@ -85,8 +81,6 @@ button.remove-server {
   background: none;
   height: 100%;
   padding: 0 0.4em;
-  /*width: 1.4em;
-  height: 1.4em;*/
 }
 
 .buttons {
@@ -102,8 +96,6 @@ button.remove-server {
 }
 .buttons button:hover {
   background: gold;
-  /*color: white;
-  border: 1px solid white;*/
 }
 
 .invalid-message {

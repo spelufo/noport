@@ -2,7 +2,10 @@ module noport
 
 go 1.20
 
-require github.com/gin-gonic/gin v1.9.0
+require (
+	github.com/gin-contrib/static v0.0.1
+	github.com/gin-gonic/gin v1.9.0
+)
 
 require (
 	github.com/bytedance/sonic v1.8.0 // indirect
