@@ -43,17 +43,21 @@
     (not (distinct-ports? state)) "Duplicate ports."))
 
 (defn load! []
-  (.then
-    (get! (str js/API_URL "/.noport.json"))
-    #(reset! *state %)))
+  (swap! *state assoc :loading? true)
+  (-> (get! (str js/API_URL "/.noport.json"))
+    (.then #(reset! *state %))))
 
 (defn save! []
-  (post! (str js/API_URL "/.noportt.json") @*state))
+  (swap! *state assoc :saving? true)
+  (.then
+    (post! (str js/API_URL "/.noport.json") @*state)
+    #(swap! *state dissoc :saving?)))
 
 (defn install! []
+  (swap! *state assoc :installing? true)
   (.then
-    (save!)
-    (post! (str js/API_URL "/install") {})))
+    (post! (str js/API_URL "/install") @*state)
+    #(swap! *state dissoc :installing?)))
 
 
 ;; UI ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -85,18 +89,23 @@
 
 (defn ui-servers [servers]
   (into [:div.servers]
-      (map-indexed ui-server servers)))
+    (map-indexed ui-server servers)))
 
 (defn ui-main []
-  (let [state @*state invalid-msg (validate state) invalid? (boolean invalid-msg)]
+  (let [{:keys [servers saving? installing? loading?] :as state} @*state
+        invalid-msg (validate state)
+        invalid? (boolean invalid-msg)]
     [:div.main
       [:h1 "Servers"]
-      [ui-servers (:servers state)]
+      [ui-servers servers]
       [:div.buttons
         [:button {:on-click #(assoc-server! "" (next-port) true)} "New"]
-        [:button {:on-click #(save!) :disabled invalid?} "Save"]
-        [:button {:on-click #(install!) :disabled invalid?} "Install"]
-        (when invalid? [:span.invalid-message invalid-msg])]]))
+        [:button {:on-click #(save!) :disabled (or invalid? saving?)}
+          "Save" (when saving? "⌛")]
+        [:button {:on-click #(install!) :disabled (or invalid? installing?)}
+          "Install" (when installing? "⌛")]
+        (when invalid? [:span.invalid-message invalid-msg])
+        (when loading? [:span.loading-message "⌛"])]]))
 
 (defn mount-app! []
   (rd/render [ui-main] (.getElementById js/document "app")))

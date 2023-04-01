@@ -47,9 +47,9 @@ or restart the machine for the change to take effect. Check running `groups`.
 # gpasswd -a spelufo noport
 ```
 
-You should now be able to write to the file.
+You should now be able to write to the file. Check with:
 ```
-$ /etc/nginx/nginx.conf
+$ touch /etc/nginx/nginx.conf
 ```
 
 
@@ -58,7 +58,7 @@ $ /etc/nginx/nginx.conf
 `noport` is a self-contained static binary. Download it and put it somewhere in
 your PATH to install it. Run `noport` without arguments to start the server.
 
-Open http://localhost:8765 for the web interface.
+Open http://localhost:8012 for the web interface.
 
 
 ## Development
@@ -68,7 +68,6 @@ The entrypoint for running development tasks is `./dev.sh`.
 
 ## TODO
 
-* [ ] Save/Install feedback.
 * [ ] Run only noport's server, not figwheel's. Get rid of allow CORS.
 * [ ] ./dev.sh build_release
 

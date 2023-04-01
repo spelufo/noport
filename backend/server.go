@@ -46,6 +46,11 @@ func handleConfigPost(c *gin.Context) {
 }
 
 func handleInstallPost(c *gin.Context) {
+	// Calling handleConfigPost is a bit of a hack. We want the install enpoint
+	// to behave the same, saving the config first, and then installing it.
+	// Assumes gin doesn't complain about setting the status more than once...
+	handleConfigPost(c)
+
 	err := installNginxConf(theNginxConfPath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
