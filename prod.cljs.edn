@@ -1,2 +1,3 @@
 { :main noport.main
+  :optimizations :advanced
   :output-to "target/public/js/noport.js" }

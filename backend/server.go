@@ -1,7 +1,10 @@
 package noport
 
 import (
+	// "fmt"
+	"embed"
 	"net/http"
+	"os"
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
@@ -12,10 +15,20 @@ const (
 	theConfigURL = "/.noport.json"
 )
 
+var devmode = os.Getenv("NOPORT_DEV") != ""
+
+//go:embed public
+var publicFS embed.FS
+
 func runServer() {
 	r := gin.Default()
-	r.Use(static.Serve("/", static.LocalFile("./resources/public", false)))
-	r.Use(static.Serve("/cljs-out", static.LocalFile("./target/public/cljs-out", false)))
+	if devmode {
+		r.Use(static.Serve("/", static.LocalFile("./resources/public", false)))
+		r.Use(static.Serve("/js", static.LocalFile("./target/public/js", false)))
+		r.Use(static.Serve("/cljs-out", static.LocalFile("./target/public/cljs-out", false)))
+	} else {
+		r.Use(static.Serve("/", EmbedFolder(publicFS, "public")))
+	}
 	r.GET(theConfigURL, handleConfigGet)
 	r.POST(theConfigURL, handleConfigPost)
 	r.POST("/install", handleInstallPost)

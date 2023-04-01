@@ -52,31 +52,45 @@ You should now be able to write to the file. Check with:
 $ touch /etc/nginx/nginx.conf
 ```
 
-
-## Install and run
+## Running
 
 `noport` is a self-contained static binary. Download it and put it somewhere in
 your PATH to install it. Run `noport` without arguments to start the server.
 
 Open http://localhost:8012 for the web interface.
 
+You can keep it running however you plan on running your other services. One
+option is to user systemd user services. Or you can just start it manually when
+you want to change the configuration. The changes persist in your nginx.conf.
+
 
 ## Development
 
-The entrypoint for running development tasks is `./dev.sh`. To work on it, run
-both the backend (`./dev.sh server`) and the figwheel development server
-(`./dev.sh front`), which compiles cljs and hot reloads it and css on file
-changes.
+### Build it
+
+```
+./dev.sh build ~/bin/noport
+```
 
 
-## TODO
+### Run in development mode
 
-* [ ] ./dev.sh build_release # to bundle everything into a single binary.
+Start the server.
+
+```
+./dev.sh server
+```
+
+Run the frontend figwheel server, that builds and hotloads cljs and css code.
+
+```
+./dev.sh front
+```
 
 
-## Features
+### Missing features
 
-This are some features that noport lacks that we would like to implement.
+This are some features that noport lacks that it would be nice to add.
 
 * [ ] SSL certificates with mkcert
 * [ ] Reorder items.
@@ -85,3 +99,7 @@ This are some features that noport lacks that we would like to implement.
 * [ ] Leverage ports.json to suggest servers and avoid collisions.
 * [ ] Other OSes.
 
+
+### TODO
+
+* [ ] Fix gin warnings. Run in gin production mode.

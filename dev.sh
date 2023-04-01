@@ -2,9 +2,23 @@
 
 set -e
 
+bin_default=~/bin/noport
+
 build() {
-  (cd backend; go build -o ~/bin/noport ./cmd/noport)
-  # figwheel -bo dev
+  build_front
+  build_back "$1"
+}
+
+build_back() {
+  # Assumes we just did build_front.
+  rm -rf backend/public
+  cp -r resources/public backend/public
+  cp -r target/public/js backend/public/js
+  (cd backend; go build -o "${1:-$bin_default}" ./cmd/noport)
+}
+
+build_front() {
+  figwheel -bo prod
 }
 
 fmt() {
@@ -12,11 +26,14 @@ fmt() {
 }
 
 figwheel() {
+  export NOPORT_DEV=1
   clojure -M -m figwheel.main "$@"
 }
 
 server() {
-  build && noport
+  export NOPORT_DEV=1
+  build_back "$1"
+  noport
 }
 
 front() {

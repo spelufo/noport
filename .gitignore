@@ -4,4 +4,5 @@
 /_notes.yaml
 local
 node_modules
-/backend/config.json
+/backend/public
+/backend/js
