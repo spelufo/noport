@@ -64,6 +64,12 @@ button {
   font-weight: bold;
   border-radius: 0.3em;
 }
+button:disabled {
+  cursor: not-allowed !important;
+  background: none !important;
+  color: #999 !important;
+  border-color: #999 !important;
+}
 button:hover {
   cursor: pointer;
 }
@@ -85,6 +91,7 @@ button.remove-server {
 
 .buttons {
   display: flex;
+  align-items: baseline;
   padding-top: 0.5em;
 }
 .buttons button {
@@ -97,4 +104,15 @@ button.remove-server {
   background: gold;
   /*color: white;
   border: 1px solid white;*/
+}
+
+.invalid-message {
+  color: #f44;
+}
+
+.servers a {
+  color: #333;
+}
+.servers a:visited {
+  color: #333;
 }

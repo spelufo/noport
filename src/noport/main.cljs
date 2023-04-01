@@ -31,13 +31,24 @@
 (defn server-by-port [state port]
   (filter #(= (:port %) port) (:servers state)))
 
+(defn distinct-domains? [state]
+  (apply distinct? (map :domain (:servers state))))
+
+(defn distinct-ports? [state]
+  (apply distinct? (map :port (:servers state))))
+
+(defn validate [state]
+  (cond
+    (not (distinct-domains? state)) "Duplicate domains."
+    (not (distinct-ports? state)) "Duplicate ports."))
+
 (defn load! []
   (.then
     (get! (str js/API_URL "/.noport.json"))
     #(reset! *state %)))
 
 (defn save! []
-  (post! (str js/API_URL "/.noport.json") @*state))
+  (post! (str js/API_URL "/.noportt.json") @*state))
 
 (defn install! []
   (.then
@@ -56,10 +67,10 @@
           (fn [ev]
             (let [domain (.. ev -target -value)]
               (swap! *state assoc-in [:servers i :domain] domain)))}]
-      " .localhost"]
+      " " [:a {:href (str "http://" (:domain server) ".localhost")} ".localhost"]]
     [:div "→"]
     [:div.server-port
-      "localhost: "
+      [:a {:href (str "http://localhost:" (:port server))} "localhost:"] " "
       [:input {
         :value (:port server)
         :on-change
@@ -77,15 +88,15 @@
       (map-indexed ui-server servers)))
 
 (defn ui-main []
-  (let [state @*state]
+  (let [state @*state invalid-msg (validate state) invalid? (boolean invalid-msg)]
     [:div.main
       [:h1 "Servers"]
       [ui-servers (:servers state)]
       [:div.buttons
         [:button {:on-click #(assoc-server! "" (next-port) true)} "New"]
-        [:button {:on-click #(save!)} "Save"]
-        [:button {:on-click #(install!)} "Install"]]
-      [:pre.nginx-config ]]))
+        [:button {:on-click #(save!) :disabled invalid?} "Save"]
+        [:button {:on-click #(install!) :disabled invalid?} "Install"]
+        (when invalid? [:span.invalid-message invalid-msg])]]))
 
 (defn mount-app! []
   (rd/render [ui-main] (.getElementById js/document "app")))

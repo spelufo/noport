@@ -1,13 +1,11 @@
-# noport
+# Noport
 
-Easily setup subdomains for you local servers.
+Easily setup localhost subdomains for you local servers.
 
 The UI configures a local nginx server listening on ports 80 and 433 to proxy
 traffic to the ports where you run your projects, mapping them by subdomain.
-E.g.:
 
-* http://foo.localhost -> http://localhost:8080
-* https://bar.localhost -> http://localhost:1313
+![Noport UI](resources/public/images/noport_ui.png)
 
 
 ## Configuration
@@ -55,6 +53,7 @@ You should now be able to write to the file.
 $ /etc/nginx/nginx.conf
 ```
 
+
 ## Install and run
 
 `noport` is a self-contained static binary. Download it and put it somewhere in
@@ -70,12 +69,19 @@ The entrypoint for running development tasks is `./dev.sh`.
 
 ## TODO
 
-* [ ] Validate no duplicate ports, no duplicate domains.
-* [ ] Reorder items.
+* [ ] Save/Install feedback.
 * [ ] Run only noport's server, not figwheel's. Get rid of allow CORS.
 * [ ] ./dev.sh build_release
+
+
+## Features
+
+This are some features that noport lacks that we would like to implement.
+
 * [ ] SSL certificates with mkcert
+* [ ] Reorder items.
 * [ ] Installer script.
 * [ ] AUR package.
 * [ ] Leverage ports.json to suggest servers and avoid collisions.
 * [ ] Other OSes.
+
