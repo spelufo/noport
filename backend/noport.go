@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"runtime"
 	"text/template"
 )
 
@@ -41,11 +42,10 @@ type Server struct {
 	Port   int    `json:"port" binding:"required"`
 	SSL    bool   `json:"ssl"`
 }
-
+ 
 const (
 	// The filename of the config file (~/.noport.json).
 	theConfigFileName = ".noport.json"
-	theNginxConfPath  = "/etc/nginx/nginx.conf"
 )
 
 var (
@@ -54,9 +54,17 @@ var (
 
 	// The nginx.conf template.
 	theTemplate *template.Template
+
+	theNginxConfPath = "/etc/nginx/nginx.conf"
+	theNginxRestartCommand = []string{"systemctl", "restart", "nginx"}
 )
 
 func init() {
+	if runtime.GOOS == "darwin" {
+		theNginxConfPath = "/usr/local/etc/nginx/nginx.conf"
+		theNginxRestartCommand = []string{"brew", "services", "restart", "nginx"}
+	}
+
 	theTemplate = template.Must(template.New("nginx.conf").Parse(`
 user http;
 worker_processes  1;
@@ -109,15 +117,8 @@ func installNginxConf(confPath string) error {
 	if err != nil {
 		return err
 	}
-	if confPath != "/etc/nginx/nginx.conf" {
-		fmt.Printf("Run these commands to apply the changes:\n")
-		fmt.Printf("  sudo mv %s /etc/nginx/nginx.conf\n", confPath)
-		fmt.Printf("  sudo systemctl restart nginx\n")
-	} else {
-		cmd := exec.Command("systemctl", "restart", "nginx")
-		return cmd.Run()
-	}
-	return nil
+	cmd := exec.Command(theNginxRestartCommand[0], theNginxRestartCommand[1:]...)
+	return cmd.Run()
 }
 
 func writeNginxConf(confPath string) error {

@@ -14,7 +14,7 @@ generated from your configuration.
 
 ## Setup
 
-This setup assumes Arch Linux. Adapt it for your OS if needed.
+### Arch Linux
 
 Install [nginx](https://wiki.archlinux.org/title/Nginx).
 ```
@@ -51,6 +51,20 @@ You should now be able to write to the file. Check with:
 ```
 $ touch /etc/nginx/nginx.conf
 ```
+
+### OSX
+
+Install nginx with brew.
+```
+brew install nginx
+```
+
+The nginx server will run through launchd as a regular user, and the config
+is at `/usr/local/etc/nginx/nginx.conf`. You can (re)start it with:
+```
+brew services restart nginx
+```
+
 
 ## Running
 
@@ -97,7 +111,7 @@ This are some features that noport lacks that it would be nice to add.
 * [ ] Installer script.
 * [ ] AUR package.
 * [ ] Leverage ports.json to suggest servers and avoid collisions.
-* [ ] Other OSes.
+* [ ] Windows.
 
 
 ### TODO
