@@ -14,11 +14,16 @@ generated from your configuration.
 
 ## Setup
 
-### Arch Linux
+* [Linux](#Linux)
+* [OSX](#OSX)
+* [Windows](#Windows)
+
+
+### Linux
 
 Install [nginx](https://wiki.archlinux.org/title/Nginx).
 ```
-# pacman -Syu nginx
+# pacman -Syu nginx       # or `apt-get install nginx`, etc.
 # systemctl start nginx   # start nginx running on port 80 (http://localhost)
 # systemctl enable nginx  # start nginx on boot
 # systemctl status nginx  # check the service's status
@@ -64,6 +69,31 @@ is at `/usr/local/etc/nginx/nginx.conf`. You can (re)start it with:
 ```
 brew services restart nginx
 ```
+
+### Windows
+
+Install nginx for windows. It comes as a zip file that decompreses to a folder
+from where you run nginx.exe manually. I've put it at `D:\Programs\nginx`.
+
+Configure noport by setting the following environment variables (e.g. from windows settings):
+```
+NOPORT_NGINX_EXE=D:\Programs\nginx\nginx.exe
+NOPORT_NGINX_CONF=D:\Programs\nginx\conf\nginx.conf
+```
+
+Save [nginx.bat](https://raw.githubusercontent.com/spelufo/noport/main/nginx.bat)
+and [nginx_reload.bat](https://raw.githubusercontent.com/spelufo/noport/main/nginx_reload.bat)
+to nginx's folder.
+
+Setup nginx.bat to run at startup: Press Win+R and enter "shell:startup" which 
+will open explorer to the startup folder. Creating a shortcut here causes the
+target of the shortcut to run at startup. Right click, new shortcut, and set
+the target to nginx.bat.
+
+Restart or run nginx.bat to start nginx.
+
+nginx_reload.bat reloads the configuration after you make changes with noport.
+TODO: Make noport trigger the reload, like on osx and linux.
 
 
 ## Running
@@ -111,7 +141,7 @@ This are some features that noport lacks that it would be nice to add.
 * [ ] Installer script.
 * [ ] AUR package.
 * [ ] Leverage ports.json to suggest servers and avoid collisions.
-* [ ] Windows.
+* [ ] Windows, reload automatically.
 
 
 ### TODO

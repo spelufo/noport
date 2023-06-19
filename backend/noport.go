@@ -65,6 +65,16 @@ func init() {
 		theNginxRestartCommand = []string{"brew", "services", "restart", "nginx"}
 	}
 
+	nginxConf := os.Getenv("NOPORT_NGINX_CONF")
+	if nginxConf != "" {
+		theNginxConfPath = nginxConf
+	}
+
+	nginxExe := os.Getenv("NOPORT_NGINX_EXE")
+	if nginxExe != "" {
+		theNginxRestartCommand = []string{nginxExe, "-s", "restart"}
+	}
+
 	theTemplate = template.Must(template.New("nginx.conf").Parse(`
 user http;
 worker_processes  1;
