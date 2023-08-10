@@ -41,6 +41,7 @@ $ ls -l /etc/nginx/nginx.conf
 
 Set the owner group to `noport` and grant write access by members of the group:
 ```
+# groupadd noport
 # chown root:noport /etc/nginx/nginx.conf
 # chmod g+w /etc/nginx/nginx.conf
 -rw-rw-r-- 1 root noport ... /etc/nginx/nginx.conf
